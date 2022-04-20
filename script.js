@@ -148,12 +148,14 @@ const createCard = (cardInfo) => {
  */
 const dealHand = () => {
   if (CURRENT_GAME_MODE === GAME_MODE_DEAL_CARDS) {
+  // test hand here
+  //  playerHand = highCard;
     for (let i = 0; i < 5; i += 1) {
-    playerHand.push(deck.pop());
-    // Create card element from card metadata
-    const cardElement = createCard(playerHand[i]);
-    // Append the card element to the card container
-    cardContainer.appendChild(cardElement);
+      playerHand.push(deck.pop());
+      // Create card element from card metadata
+      let cardElement = createCard(playerHand[i]);
+      // Append the card element to the card container
+      cardContainer.appendChild(cardElement);
     };
     CURRENT_GAME_MODE = GAME_MODE_SELECT_CARDS;
     console.log(playerHand)
@@ -241,7 +243,7 @@ const dealSecondHand = () => {
 
     pointsforHand = calcHandScore(playerFinalHand);
     playerHandScore += pointsforHand;
-    gameInfo.innerText = `You scored ${pointsforHand}. Your final score is ${playerHandScore}.`
+    gameInfo.innerText += ` You scored ${pointsforHand}. Your final score is ${playerHandScore}.`
   };
 };
 
@@ -322,67 +324,52 @@ const calcHandScore = (array) => {
   isStraight = checkForStraight(playerFinalNums);
 
   if (isStraight === true && isFlush === true) {
-    gameInfo.innerText += `You got a straight flush!`
+    gameInfo.innerText = `You got a straight flush!`
     return 80;
   }
 
   if (isFourOfAKind === true) {
-    gameInfo.innerText += `You got four of a kind!`
+    gameInfo.innerText = `You got four of a kind!`
     return 70;
   }
   
   if (isThreeOfAKind === true && isPairOne === true) {
-    gameInfo.innerText += `You got a full house!`
+    gameInfo.innerText = `You got a full house!`
     return 60;
   }
 
   if (isFlush === true) {
-    gameInfo.innerText += `You got a flush!`
+    gameInfo.innerText = `You got a flush!`
     return 50;
   }
 
   if (isStraight === true) {
-    gameInfo.innerText += `You got a straight!`
+    gameInfo.innerText = `You got a straight!`
     return 40;
   }
 
   if (isThreeOfAKind === true) {
-    gameInfo.innerText += `You got three of a kind!`
+    gameInfo.innerText = `You got three of a kind!`
     return 30;
   }
 
   if (isPairOne === true && isPairTwo === true) {
-    gameInfo.innerText += `You got a two pair!`
+    gameInfo.innerText = `You got a two pair!`
     return 20;
   }
 
   if (isPairOne === true) {
-    gameInfo.innerText += `You got one pair!`
+    gameInfo.innerText = `You got one pair!`
     return 10;
   }
 
-
-  return 1;
-  };
+  else {
+    gameInfo.innerText = `You didn't get anything :(`
+    return 1;
+  }
+};
 
   
-
-
-  // After doing all the tallies, check for win conditions
-
-  // STRAIGHT FLUSH - 80pts
-  /*
-    if (cardSuitTally[cardSuit] == 4) {
-      console.log(`Four of a kind!`)
-      return 80;
-    }
-  */
-
-  // FOUR OF A KIND - 70pts
-
-
-
-
   
 /**
  * A function that takes in an array of objects and creates an array of numbers only from the "rank" key. The array that is returned is sorted in ascending order.
@@ -410,6 +397,7 @@ const checkForStraight = (arrayOfNums) => {
       return false
     }
   }
+  console.log(`straight`);
   return true;
 }; 
 
@@ -437,6 +425,30 @@ const differenceIsOne = function (c, d) {
 
 
 
+  /**
+ * A function that resets the game.
+
+ */
+const playAnotherRound = () => {
+  if (CURRENT_GAME_MODE === GAME_MODE_END) {
+    console.log(`start next round`);
+    // reset player hand
+    playerHand = [];
+    playerFinalHand = [];
+    playerFinalNums = [];
+    numCardsNeeded = 0;
+
+    // reshuffle deck
+    deck = shuffleCards(makeDeck());
+    // Empty cardContainer
+    cardContainer.innerHTML = '';
+
+    CURRENT_GAME_MODE = GAME_MODE_DEAL_CARDS;
+    gameInfo.innerText = ` Your current score is ${playerHandScore}. Click to deal again`
+  };
+};
+
+
 /* ==================================== */
 /* ========= GLOBAL SETUP ========= */
 /* ==================================== */
@@ -450,7 +462,7 @@ let playerFinalNums = [];
 let numCardsNeeded = 0;
 let playerHandScore = 100;
 let pointsforHand = 0;
-const deck = shuffleCards(makeDeck());
+let deck = shuffleCards(makeDeck());
 let canClick = true;
 let GAME_MODE_DEAL_CARDS = "GAME_MODE_DEAL_CARDS";
 let GAME_MODE_SELECT_CARDS = "GAME_MODE_SELECT_CARDS";
@@ -495,6 +507,11 @@ chosenButton = document.createElement('button');
 chosenButton.innerText = "I've chosen";
 document.body.appendChild(chosenButton);
 
+// create play again button and append to body
+playAgainButton = document.createElement('button');
+playAgainButton.innerText = "Play again";
+document.body.appendChild(playAgainButton);
+
 // deal 5 cards to player when player clicks "Deal" button
 dealButton.addEventListener('click', () => {
   dealHand()
@@ -504,25 +521,15 @@ chosenButton.addEventListener('click', () => {
   dealSecondHand()
 });
 
-
-
-
-
-
-
-
-
-
+playAgainButton.addEventListener('click', () => {
+  playAnotherRound()
+});
 
 
 
 // QUESTIONS
 // What's a nodelist cardsShown - how come i couldn't add a class list to this
 // how to use addEventListener - what's () => {}
-
-
-
-
 
 
 
