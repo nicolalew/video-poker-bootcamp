@@ -144,17 +144,6 @@ const createCard = (cardInfo) => {
 
 
 /**
- * A function that applies or removes "selected" class to the element clicked
- */
-/*
-const selectCard = () => {
-  // if card has not been selected, apply "selected" class to give it red border
-  return 
-}
-*/
-
-
-/**
  * A function that pops 5 cards off the deck.
  */
 const dealHand = () => {
@@ -216,7 +205,7 @@ const dealSecondHand = () => {
     for (i=4; i>-1; i-=1) {
       if (cardsShown[i].classList.contains('selected')) {
         console.log(`card has been selected: ${cardsShown[i]}`)
-        playerFinalHand.push(playerHand.pop());
+        playerFinalHand.unshift(playerHand.pop());
         console.log(`playerFinalHand is ${playerFinalHand}`)
         console.log(`playerHand is ${playerHand}`) 
       }
@@ -264,27 +253,188 @@ const dealSecondHand = () => {
  */
 const calcHandScore = (array) => {
 
-  // tally
+  // tally cardNames
   for (let i = 0; i < playerFinalHand.length; i += 1) {
     var cardName = playerFinalHand[i].name;
+    
     // If we have seen the card name before, increment its count
     if (cardName in cardNameTally) {
-      console.log(`Card has been seen before`)
+      console.log(`Card with same name has been seen before`)
       cardNameTally[cardName] += 1;
     }
     // Else, initialise count of this card name to 1
     else {
-      console.log(`First of this card in hand`)
+      console.log(`First card with this name in hand`)
 
       cardNameTally[cardName] = 1;
-    }
-    
+    }  
   }
   for (cardName in cardNameTally) {
-    console.log(`There are ${cardNameTally[cardName]} ${cardName}s in the hand`);
-  }   
+    if (cardNameTally[cardName]===4){
+      console.log(`4 of a kind`);
+      isFourOfAKind = true;
+    }
+    if (cardNameTally[cardName]===3){
+      console.log(`3 of a kind`);
+      isThreeOfAKind = true;
+    }
+    if (cardNameTally[cardName]===2){
+      console.log(`pair`);
+      if (isPairOne === false){
+        isPairOne = true
+      }
+      else {
+        isPairTwo = true;
+      }
+      
+    }
+    console.log(`There are ${cardNameTally[cardName]} ${cardName} in the hand`);
+  }
+
+  // tally cardSuits
+  for (let i = 0; i < playerFinalHand.length; i += 1) {
+    var cardSuit = playerFinalHand[i].suit;
+    
+    // If we have seen the card suit before, increment its count
+    if (cardSuit in cardSuitTally) {
+      console.log(`Card with same suit has been seen before`)
+      cardSuitTally[cardSuit] += 1;
+    }
+    // Else, initialise count of this card suit to 1
+    else {
+      console.log(`First card with this suit in hand`)
+
+      cardSuitTally[cardSuit] = 1;
+    }  
+  }
+  for (cardSuit in cardSuitTally) {
+    if (cardSuitTally[cardSuit]===5){
+      console.log(`flush`);
+      isFlush = true;
+    }
+    console.log(`There are ${cardSuitTally[cardSuit]} ${cardSuit}s in the hand`);
+    }
+  
+  
+  // check for straights
+  // get an array of the ranks in ascending order
+  playerFinalNums = sortByRank(playerFinalHand);
+  isStraight = checkForStraight(playerFinalNums);
+
+  if (isStraight === true && isFlush === true) {
+    gameInfo.innerText += `You got a straight flush!`
+    return 80;
+  }
+
+  if (isFourOfAKind === true) {
+    gameInfo.innerText += `You got four of a kind!`
+    return 70;
+  }
+  
+  if (isThreeOfAKind === true && isPairOne === true) {
+    gameInfo.innerText += `You got a full house!`
+    return 60;
+  }
+
+  if (isFlush === true) {
+    gameInfo.innerText += `You got a flush!`
+    return 50;
+  }
+
+  if (isStraight === true) {
+    gameInfo.innerText += `You got a straight!`
+    return 40;
+  }
+
+  if (isThreeOfAKind === true) {
+    gameInfo.innerText += `You got three of a kind!`
+    return 30;
+  }
+
+  if (isPairOne === true && isPairTwo === true) {
+    gameInfo.innerText += `You got a two pair!`
+    return 20;
+  }
+
+  if (isPairOne === true) {
+    gameInfo.innerText += `You got one pair!`
+    return 10;
+  }
+
+
   return 1;
+  };
+
+  
+
+
+  // After doing all the tallies, check for win conditions
+
+  // STRAIGHT FLUSH - 80pts
+  /*
+    if (cardSuitTally[cardSuit] == 4) {
+      console.log(`Four of a kind!`)
+      return 80;
+    }
+  */
+
+  // FOUR OF A KIND - 70pts
+
+
+
+
+  
+/**
+ * A function that takes in an array of objects and creates an array of numbers only from the "rank" key. The array that is returned is sorted in ascending order.
+ * @param {array} playerFinalHand
+ * @returns {array}
+ */
+// Create a helper function to put the ranks into an array and sort
+const sortByRank = (arrayOfObj) => {
+  for (i=0; i<arrayOfObj.length; i++) {
+    playerFinalNums[i] = arrayOfObj[i].rank;
+  }
+  playerFinalNums.sort(function(a, b){return a-b});
+  console.log(`${playerFinalNums}`)
+  return playerFinalNums;
 };
+
+/**
+ * A function that takes in a sorted array (either ascending or descending) and checks if the numbers in the array are consecutive.
+ * @param {array} arrayOfNums
+ * @returns {boolean}
+ */
+const checkForStraight = (arrayOfNums) => {
+  for (i=0; i<arrayOfNums.length-1; i++){
+    if (differenceIsOne(arrayOfNums[i], arrayOfNums[i+1]) === false) {
+      return false
+    }
+  }
+  return true;
+}; 
+
+/*
+if ( 
+    (differenceIsOne(arrayOfNums[0], arrayOfNums[1])) &&
+    (differenceIsOne(arrayOfNums[1], arrayOfNums[2])) &&
+    (differenceIsOne(arrayOfNums[2], arrayOfNums[3])) &&
+    (differenceIsOne(arrayOfNums[3], arrayOfNums[4])) === true
+  ) { return true
+    }
+*/
+
+/**
+ * A function that takes in 2 numbers and returns true if the difference between the 2 numbers is 1.
+ * @param {array} playerFinalHand
+ * @returns {array}
+ */
+const differenceIsOne = function (c, d) {
+  if (Math.abs(c-d) === 1){
+    return true;
+  }
+  return false;
+};
+
 
 
 /* ==================================== */
@@ -296,6 +446,7 @@ let currentSuitSymbol = '';
 let currentDisplayName = '';
 let playerHand = [];
 let playerFinalHand = [];
+let playerFinalNums = [];
 let numCardsNeeded = 0;
 let playerHandScore = 100;
 let pointsforHand = 0;
@@ -308,6 +459,13 @@ let CURRENT_GAME_MODE = GAME_MODE_DEAL_CARDS;
 let cardsShown;
 let gameInfo;
 let cardNameTally = {};
+let cardSuitTally = {};
+let isStraight;
+let isFlush;
+let isFourOfAKind;
+let isThreeOfAKind;
+let isPairOne = false;
+let isPairTwo = false;
 
 
 
