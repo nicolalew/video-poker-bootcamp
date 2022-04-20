@@ -438,6 +438,15 @@ const playAnotherRound = () => {
     playerFinalNums = [];
     numCardsNeeded = 0;
 
+    cardNameTally = {};
+    cardSuitTally = {};
+    isStraight = false;
+    isFlush = false;
+    isFourOfAKind = false;
+    isThreeOfAKind = false;
+    isPairOne = false;
+    isPairTwo = false;
+
     // reshuffle deck
     deck = shuffleCards(makeDeck());
     // Empty cardContainer
